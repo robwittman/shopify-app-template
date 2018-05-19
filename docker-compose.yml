@@ -1,0 +1,63 @@
+version: '3'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: dockerfiles/Api.Dockerfile
+    links:
+      - database
+      - cache
+    volumes:
+      - ./api:/var/www
+    env_file: config/env/api.env
+  web:
+    build:
+      context: .
+      dockerfile: dockerfiles/App.Dockerfile
+    volumes:
+      - ./app:/app
+    env_file: config/env/app.env
+  database:
+    image: mysql:5.7
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    env_file: config/env/mysql.env
+  load_balancer:
+    image: jwilder/nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    env_file: config/env/nginx.env
+  cache:
+    image: redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - ./data/redis:/data/db
+    env_file: config/env/redis.env
+  cron:
+    build:
+      context: .
+      dockerfile: dockerfiles/Worker.Dockerfile
+    links:
+      - database
+      - cache
+    volumes:
+      - ./api:/var/www
+      - ./config/supervisord.conf:/etc/supervisord.conf
+    stdin_open: true
+    tty: true
+    env_file: config/env/api.env
+  slanger:
+    build:
+      context: .
+      dockerfile: dockerfiles/Slanger.Dockerfile
+    ports:
+      - 4567:4567
+      - 8080:8080
+    links:
+      - cache:redis
+    env_file: config/env/slanger.env
