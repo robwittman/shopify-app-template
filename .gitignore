@@ -1,5 +1,5 @@
 .idea
-node_modules
-vendor
+app/node_modules
+api/vendor
 data
-container.env.php
+api/container.env.php
