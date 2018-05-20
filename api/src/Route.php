@@ -15,8 +15,21 @@ class Route
                 'success' => true
             ]);
         });
+        $app->options('/{routes:.+}', function($request, $response) {
+            return $response->withStatus(200);
+        });
 
-        $app->map(['POST', 'GET'], '/auth/install', AuthController::class.':install');
+        $app->map(['GET', 'POST'], '/auth/install', 'controller.auth:install');
+        $app->post('/auth/token', 'controller.auth:token');
+
         $app->get('/shops', 'controller.shops:index');
+
+        $app->add(function ($req, $res, $next) {
+            $response = $next($req, $res);
+            return $response
+                ->withHeader('Access-Control-Allow-Origin', '*')
+                ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
+                ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+        });
     }
 }

@@ -8,6 +8,12 @@ $env = getenv("ENVIRONMENT");
 
 $container->setParameter('environment', getenv("ENVIRONMENT") ?: 'production');
 $container->setParameter('domain', getenv("DOMAIN"));
+$container->setParameter('jwt.secret_key', 'soopersecretkey');
+$container->setParameter('jwt.algorithm', 'HS256');
+$container->setParameter('shopify.api_key', getenv("SHOPIFY_API_KEY"));
+$container->setParameter('shopify.api_secret', getenv("SHOPIFY_API_SECRET"));
+$container->setParameter('shopify.redirect_uri', getenv("SHOPIFY_REDIRECT_URI"));
+$container->setParameter('shopify.scopes', getenv("SHOPIFY_SCOPES"));
 
 $container->setParameter('db.connection', [
     'driver'   => 'pdo_mysql',
@@ -15,6 +21,13 @@ $container->setParameter('db.connection', [
     'password' => 'root',
     'dbname'   => 'shopify',
     'host'     => 'database'
+]);
+$container->setParameter('pusher.key', getenv("PUSHER_APP_KEY"));
+$container->setParameter('pusher.secret', getenv("PUSHER_SECRET"));
+$container->setParameter('pusher.app_id', '');
+$container->setParameter('pusher.options', [
+    'host' => 'slanger.local',
+    'port' => '4567'
 ]);
 
 $container->register('log.stream_handler', \Monolog\Handler\StreamHandler::class)
@@ -64,6 +77,16 @@ $container->register('repository.shop')
         new Reference('event.dispatcher')
     ]);
 
+$container->register('jwt.helper', \App\JwtHelper::class)
+    ->addArgument($container->getParameter('jwt.secret_key'))
+    ->addArgument($container->getParameter('jwt.algorithm'));
+
+$container->register('shopify.api', \Shopify\Api::class)
+    ->addArgument([
+        'api_key' => $container->getParameter('shopify.api_key'),
+        'api_secret' => $container->getParameter('shopify.api_secret')
+    ]);
+
 $container->register('event.dispatcher', \Symfony\Component\EventDispatcher\EventDispatcher::class)
     ->addMethodCall('addListener', [
         \App\Event\ShopInstalledEvent::NAME,
@@ -85,6 +108,11 @@ $container->register('listener.shop_uninstalled.drop_database', \App\Listener\Sh
 $container->register('middleware.shop_authorization', \App\Middleware\ShopAuthorizationMiddleware::class)
     ->addArgument(new Reference('repository.shop'));
 
+$container->register('controller.auth', \App\Controller\AuthController::class)
+    ->addArgument(new Reference('repository.shop'))
+    ->addArgument(new Reference('shopify.api'))
+    ->addArgument(new Reference('jwt.helper'));
+
 $container->register('controller.shops', \App\Controller\ShopController::class)
     ->addArgument(new Reference('repository.factory'));
 
@@ -93,6 +121,13 @@ $container->register('console.command.migrate', \App\Command\Database\Migrate::c
     ->addArgument(new Reference('entity_manager.factory'))
     ->addMethodCall('setLogger', [new Reference('console.logger')]);
 
+$container->register('pusher.pusher', \Pusher\Pusher::class)
+    ->addArgument($container->getParameter('pusher.key'))
+    ->addArgument($container->getParameter('pusher.secret'))
+    ->addArgument($container->getParameter('pusher.app_id'))
+    ->addArgument($container->getParameter('pusher.options'));
+
+$container->register('middleware.cors', \Tuupola\Middleware\CorsMiddleware::class);
 $container->register('console.application', \Symfony\Component\Console\Application::class)
     ->addMethodCall('add', [new Reference('console.command.migrate')]);
 

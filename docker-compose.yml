@@ -16,6 +16,8 @@ services:
       dockerfile: dockerfiles/App.Dockerfile
     volumes:
       - ./app:/app
+    ports:
+      - '3000:3000'
     env_file: config/env/app.env
   database:
     image: mysql:5.7
@@ -26,9 +28,14 @@ services:
     env_file: config/env/mysql.env
   load_balancer:
     image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
     ports:
       - "80:80"
+      - "443:443"
     volumes:
+      - ./data/certs:/etc/nginx/certs:ro
       - /var/run/docker.sock:/tmp/docker.sock:ro
     env_file: config/env/nginx.env
   cache:

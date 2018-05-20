@@ -14,6 +14,14 @@ use Doctrine\ORM\Mapping as ORM;
  **/
 class Shop extends Model
 {
+    static $hidden = [
+        'database_name',
+        'database_user_name',
+        'database_password',
+        'database_port',
+        'database_host',
+        'access_token'
+    ];
     /**
      * @Id
      * @Column(type="integer")

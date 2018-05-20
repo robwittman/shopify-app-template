@@ -15,15 +15,16 @@ class JwtHelper
     /**
      * @var string
      */
-    protected $algorithm = 'HS256';
+    protected $algorithm;
 
-    public function __construct(string $secretKey)
+    public function __construct(string $secretKey, $algorithm)
     {
         $this->secretKey = $secretKey;
+        $this->algorithm = $algorithm;
     }
 
     /**
-     * Creat a JWT token for the given shop
+     * Create a JWT token for the given shop
      * @param Shop $shop
      * @return string
      */
