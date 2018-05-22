@@ -8,7 +8,7 @@ $env = getenv("ENVIRONMENT");
 
 $container->setParameter('environment', getenv("ENVIRONMENT") ?: 'production');
 $container->setParameter('domain', getenv("DOMAIN"));
-$container->setParameter('jwt.secret_key', 'soopersecretkey');
+$container->setParameter('jwt.secret_key', getenv("JWT_SECRET"));
 $container->setParameter('jwt.algorithm', 'HS256');
 $container->setParameter('shopify.api_key', getenv("SHOPIFY_API_KEY"));
 $container->setParameter('shopify.api_secret', getenv("SHOPIFY_API_SECRET"));
@@ -17,17 +17,17 @@ $container->setParameter('shopify.scopes', getenv("SHOPIFY_SCOPES"));
 
 $container->setParameter('db.connection', [
     'driver'   => 'pdo_mysql',
-    'user'     => 'root',
-    'password' => 'root',
-    'dbname'   => 'shopify',
-    'host'     => 'database'
+    'user'     => getenv("DB_USER"),
+    'password' => getenv("DB_PASSWORD"),
+    'dbname'   => getenv("DB_NAME"),
+    'host'     => getenv("DB_HOST")
 ]);
 $container->setParameter('pusher.key', getenv("PUSHER_APP_KEY"));
 $container->setParameter('pusher.secret', getenv("PUSHER_SECRET"));
 $container->setParameter('pusher.app_id', '');
 $container->setParameter('pusher.options', [
-    'host' => 'slanger.local',
-    'port' => '4567'
+    'host' => getenv("PUSHER_HOST"),
+    'port' => getenv("PUSHER_PORT")
 ]);
 
 $container->register('log.stream_handler', \Monolog\Handler\StreamHandler::class)
