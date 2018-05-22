@@ -36,7 +36,6 @@ class App extends React.Component {
     }
 
     render() {
-        let currentUser = this.props.currentUser;
         return (
             <div>
                 <div className={'container-fluid'}>
