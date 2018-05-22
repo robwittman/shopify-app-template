@@ -8,9 +8,7 @@ import { store, history } from './store';
 import BootstrapWrapper from './components/BootstrapWrapper';
 import { AppProvider } from '@shopify/polaris';
 
-console.log('env', SHOPIFY_API_KEY);
 window.store = store;
-
 render(
     <Provider store={store}>
         <ConnectedRouter history={history}>

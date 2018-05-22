@@ -2,40 +2,18 @@ import React from 'react';
 import { connect } from 'react-redux';
 import agent from '../agent';
 import {
-    GET_TOKEN,
-    UNAUTHORIZED,
-    MISSING_SCOPES,
-    CHARGE_REQUIRED,
-    INSTALL
-} from '../constants/action-types';
+    getToken
+} from '../actions/auth';
+
 import BlankPage from './BlankPage';
 
+/**
+ * Wrapps our application, and ensures we get a JWT token
+ * from our API before bootstrapping the app
+ */
 class BootstrapWrapper extends React.Component {
-    componentWillReceiveProps(nextProps) {
-        switch (nextProps.type) {
-            case UNAUTHORIZED:
-            case MISSING_SCOPES:
-                console.log(nextProps.type);
-                // redirect to shopify for auth...
-                break;
-            case CHARGE_REQUIRED:
-                console.log(nextProps.type);
-                // Redirect to our charge url...
-                break;
-        }
-    }
     componentDidMount() {
-        let params = this.parseGetParams();
-        console.log('params', params);
-        if (params.code) {
-            // We are returning from a redirect, finish auth and store
-            console.log('Completing auth');
-            this.props.install(params);
-        } else {
-            console.log('dispatching getToken');
-            console.log(params);
-            this.props.getToken(params);
-        }
+        getToken(this.parseGetParams());
     }
 
     parseGetParams() {
@@ -62,14 +40,12 @@ class BootstrapWrapper extends React.Component {
 
 const mapDispatchToProps = dispatch => ({
     getToken: (args) =>
-        dispatch({ type: GET_TOKEN, payload: agent.Auth.token(args) }),
-    install: (args) =>
-        dispatch({ type: INSTALL, payload: agent.Auth.install(args) })
+        dispatch({ type: GET_TOKEN, payload: agent.Auth.token(args) })
 });
 
 const mapPropsToState = state => {
     return {
-        authenticated: false
+        authenticated: state.auth.authenticated
     }
 };
 

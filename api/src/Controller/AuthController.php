@@ -35,13 +35,16 @@ class AuthController
         $service = new ShopService($this->api);
         $data = $service->get();
         $this->persist($data);
-
+        return $response->withRedirect(
+            "https://{$request->getParams('shop')}/admin/apps/{$this->api->getApiKey()}"
+        );
     }
 
     public function token(ServerRequestInterface $request, ResponseInterface $response, array $arguments) : ResponseInterface
     {
+        $body = $request->getParsedBody();
         $shop = $this->shopRepo->findOneBy([
-            'myshopify_domain' => $request->getHeader('X-SHOP-DOMAIN')
+            'myshopify_domain' => $body['shop']
         ]);
         if (is_null($shop)) {
             return $response
@@ -58,9 +61,14 @@ class AuthController
 
     protected function persist(ShopData $data)
     {
-        $shop = new Shop();
+        $shop = $this->shopRepo->findOneBy([
+            'myshopify_domain' => $data->myshopify_domain
+        ]);
+        if (is_null($shop)) {
+            $shop = new Shop();
+            $shop ->setId($data->id);
+        }
         $shop
-            ->setId($data->id)
             ->setName($data->name)
             ->setAddress1($data->address1)
             ->setAddress2($data->address2)

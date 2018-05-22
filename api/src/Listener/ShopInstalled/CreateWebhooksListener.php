@@ -2,32 +2,33 @@
 
 namespace App\Listener\ShopInstalled;
 
-use App\Command\Database\CreateDatabaseCommand;
+use App\Command\Webhooks\CreateWebhooksCommand;
 use App\Event\ShopInstalledEvent;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
-class CreateDatabaseListener
+class CreateWebhooksListener
 {
     /**
-     * @var CreateDatabaseCommand
+     * @var CreateWebhooksCommand
      */
     protected $command;
 
-    public function __construct(CreateDatabaseCommand $command)
+    public function __construct(CreateWebhooksCommand $command)
     {
         $this->command = $command;
     }
 
     /**
      * @param ShopInstalledEvent $event
-     * @throws \Doctrine\DBAL\DBALException
+     * @return int
      * @throws \Exception
      */
-    public function __invoke(ShopInstalledEvent $event)
+    public function invoke(ShopInstalledEvent $event)
     {
+        $shop = $event->getShop();
         $arguments = [
-            '--domain' => $event->getShop()->getMyshopifyDomain()
+            '--domain' => $shop->getMyshopifyDomain()
         ];
         $greetInput = new ArrayInput($arguments);
         $returnCode = $this->command->run(

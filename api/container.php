@@ -95,15 +95,21 @@ $container->register('event.dispatcher', \Symfony\Component\EventDispatcher\Even
     ->addMethodCall('addListener', [
         \App\Event\ShopUninstalledEvent::NAME,
         new Reference('listener.shop_uninstalled.drop_database')
+    ])
+    ->addMethodCall('addListener', [
+        \App\Event\ShopInstalledEvent::NAME,
+        new Reference('listener.shop_installed.create_webhooks')
     ]);
 
 $container->register('listener.shop_installed.create_database', \App\Listener\ShopInstalled\CreateDatabaseListener::class)
-    ->addArgument(new Reference('db.entity_manager'))
-    ->addArgument(new Reference('console.command.migrate'));
-
+    ->addArgument(new Reference('console.command.create_database'));
 $container->register('listener.shop_uninstalled.drop_database', \App\Listener\ShopUninstalled\DropTenantDatabaseListener::class)
     ->addArgument(new Reference('db.entity_manager'))
     ->addArgument(new Reference('repository.shop'));
+$container->register('listener.shop_installed.create_webhooks', \App\Listener\ShopInstalled\CreateWebhooksListener::class)
+    ->addArgument(new Reference('console.command.create_webhooks'));
+$container->register('listener.shop_installed.create_script_tags', \App\Listener\ShopInstalled\CreateScriptTagsListener::class)
+    ->addArgument(new Reference('console.command.install_script_tags'));
 
 $container->register('middleware.shop_authorization', \App\Middleware\ShopAuthorizationMiddleware::class)
     ->addArgument(new Reference('repository.shop'));
@@ -121,6 +127,19 @@ $container->register('console.command.migrate', \App\Command\Database\Migrate::c
     ->addArgument(new Reference('entity_manager.factory'))
     ->addMethodCall('setLogger', [new Reference('console.logger')]);
 
+$container->register('console.command.create_webhooks', \App\Command\Webhooks\CreateWebhooksCommand::class)
+    ->addArgument(new Reference('repository.shop'))
+    ->addArgument(new Reference('shopify.api'));
+
+$container->register('console.command.create_script_tags', \App\Command\ScriptTags\InstallScriptTagsCommand::class)
+    ->addArgument(new Reference('repository.shop'))
+    ->addArgument(new Reference('shopify.api'));
+
+$container->register('console.command.create_database', \App\Command\Database\CreateDatabaseCommand::class)
+    ->addArgument(new Reference('repository.shop'))
+    ->addArgument(new Reference('db.entity_manager'))
+    ->addArgument(new Reference('console.command.migrate'));
+
 $container->register('pusher.pusher', \Pusher\Pusher::class)
     ->addArgument($container->getParameter('pusher.key'))
     ->addArgument($container->getParameter('pusher.secret'))
@@ -129,7 +148,8 @@ $container->register('pusher.pusher', \Pusher\Pusher::class)
 
 $container->register('middleware.cors', \Tuupola\Middleware\CorsMiddleware::class);
 $container->register('console.application', \Symfony\Component\Console\Application::class)
-    ->addMethodCall('add', [new Reference('console.command.migrate')]);
+    ->addMethodCall('add', [new Reference('console.command.migrate')])
+    ->addMethodCall('add', [new Reference('console.command.create_webhooks')]);
 
 $container->set('errorHandler', function($request, $response, $exception) {
     error_log(get_class($exception).'::'.$exception->getMessage());

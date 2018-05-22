@@ -31,12 +31,22 @@ class DropTenantDatabaseListener
     public function __invoke(ShopUninstalledEvent $event)
     {
         $shop = $event->getShop();
-        $this->entityManager->getConnection()->exec(
-            "DROP DATABASE IF EXISTS '{$shop->getDatabaseName()}'"
+        $this->execute(
+            "DROP DATABASE IF EXISTS {$shop->getDatabaseName()}"
         );
-        $this->entityManager->getConnection()->exec(
+        $this->execute(
             "DROP USER IF EXISTS '{$shop->getDatabaseUserName()}'"
         );
         $this->shopRepo->remove($shop);
+    }
+
+    /**
+     * @param $sql
+     * @return int
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    protected function execute($sql)
+    {
+        return $this->entityManager->getConnection()->exec($sql);
     }
 }

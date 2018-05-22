@@ -25,7 +25,7 @@ class Shop extends Model
     /**
      * @Id
      * @Column(type="integer")
-     * @GeneratedValue **/
+     **/
     protected $id;
 
     /**

@@ -5,6 +5,7 @@ import { APP_LOAD, REDIRECT } from '../constants/action-types';
 import { Route, Switch } from 'react-router-dom';
 import { store } from '../store';
 import { push } from 'react-router-redux';
+import ShopPage from './ShopPage';
 
 const mapStateToProps = state => {
     return {
@@ -22,6 +23,10 @@ const mapDispatchToProps = dispatch => ({
 });
 
 class App extends React.Component {
+    componentWillMount() {
+        console.log('App Loaded');
+    }
+
     componentWillReceiveProps(nextProps) {
         if (nextProps.redirectTo) {
             // this.context.router.replace(nextProps.redirectTo);
@@ -30,29 +35,15 @@ class App extends React.Component {
         }
     }
 
-    componentWillMount() {
-        const token = window.localStorage.getItem('jwt');
-        if (token) {
-            agent.setToken(token);
-        }
-
-        this.props.onLoad(token ? agent.Auth.current() : null, token);
-    }
-
     render() {
-        if (this.props.appLoaded) {
-            let currentUser = this.props.currentUser;
-            return (
-                <div>
-                    <div className={'container-fluid'}>
-                        <h1>App</h1>
-                    </div>
-                </div>
-            );
-        }
+        let currentUser = this.props.currentUser;
         return (
             <div>
-                <h1>App</h1>
+                <div className={'container-fluid'}>
+                    <Switch>
+                        <Route path={"/"} component={ShopPage} />
+                    </Switch>
+                </div>
             </div>
         );
     }
