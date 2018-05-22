@@ -6,7 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./index.js",
-    "dev": "./node_modules/.bin/webpack-dev-server --port 3000 --public --host 0.0.0.0 --mode development --config ./webpack/webpack.dev.config.js"
+    "clean": "rm -rf ./build/index.bundle.js",
+    "dev": "./node_modules/.bin/webpack-dev-server --port 3000 --public --host 0.0.0.0 --mode development --config ./webpack/webpack.dev.config.js",
+    "compile": "NODE_ENV=production webpack --config ./webpack/webpack.production.config.js --progress",
+    "build": "npm run clean && npm run compile"
   },
   "author": "",
   "license": "ISC",
