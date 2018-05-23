@@ -17,11 +17,10 @@ class ShopAuthorizationMiddleware
 
     public function __invoke(RequestInterface $request, ResponseInterface $response, callable $next)
     {
-        if (!$request->hasAttribute('jwt')) {
+        $jwt = $request->getAttribute('jwt');
+        if (!$jwt) {
             return $next($request, $response);
         }
-
-        $jwt = $request->getAttribute('jwt');
         $shop = $this->shopRepository->findOneBy([
             'id' => $jwt->id
         ]);

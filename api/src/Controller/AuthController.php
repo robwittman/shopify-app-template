@@ -8,6 +8,7 @@ use App\Repository\ShopRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Shopify\Api;
+use Shopify\Object\AccessToken;
 use Shopify\Object\Shop as ShopData;
 use Shopify\Service\ShopService;
 
@@ -31,12 +32,13 @@ class AuthController
         $this->api->setMyshopifyDomain($request->getParam('shop'));
         $helper = $this->api->getOAuthHelper();
         $token = $helper->getAccessToken($request->getParam('code'));
+        
         $this->api->setAccessToken($token->access_token);
         $service = new ShopService($this->api);
         $data = $service->get();
-        $this->persist($data);
+        $this->persist($data, $token);
         return $response->withRedirect(
-            "https://{$request->getParams('shop')}/admin/apps/{$this->api->getApiKey()}"
+            "https://{$request->getParam('shop')}/admin/apps/{$this->api->getApiKey()}"
         );
     }
 
@@ -59,7 +61,7 @@ class AuthController
         ]);
     }
 
-    protected function persist(ShopData $data)
+    protected function persist(ShopData $data, AccessToken $token)
     {
         $shop = $this->shopRepo->findOneBy([
             'myshopify_domain' => $data->myshopify_domain
@@ -115,7 +117,9 @@ class AuthController
             ->setDatabaseName(preg_replace("/[^A-Za-z0-9]/", '_', $data->myshopify_domain))
             ->setDatabaseUserName(md5(uniqid(true)))
             ->setDatabasePassword(md5(uniqid(true)))
-            ->setDatabasePort(3306);
+            ->setDatabasePort(3306)
+            ->setAccessToken($token->access_token)
+            ->setScopes(explode(',', $token->scopes));
 
         $this->shopRepo->save($shop);
         return true;
