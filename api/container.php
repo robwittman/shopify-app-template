@@ -111,6 +111,13 @@ $container->register('listener.shop_installed.create_webhooks', \App\Listener\Sh
 $container->register('listener.shop_installed.create_script_tags', \App\Listener\ShopInstalled\CreateScriptTagsListener::class)
     ->addArgument(new Reference('console.command.install_script_tags'));
 
+$container->register('jwt.factory', \App\JwtAuthorizationFactory::class)
+    ->addArgument($container->getParameter('jwt.secret_key'));
+$container->register('middleware.jwt', \Tuupola\Middleware\JwtAuthentication::class)
+    ->setFactory([
+        new Reference('jwt.factory'),
+        'createJwtAuthenticationMiddleware'
+    ]);
 $container->register('middleware.shop_authorization', \App\Middleware\ShopAuthorizationMiddleware::class)
     ->addArgument(new Reference('repository.shop'));
 

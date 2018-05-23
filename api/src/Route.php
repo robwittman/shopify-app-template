@@ -24,6 +24,8 @@ class Route
 
         $app->get('/shops', 'controller.shops:index');
 
+        $app->add('middleware.shop_authorization');
+        $app->add('middleware.jwt');
         $app->add(function ($req, $res, $next) {
             $response = $next($req, $res);
             return $response

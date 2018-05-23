@@ -19,12 +19,14 @@ class JwtAuthorizationFactory
             'secret' => $this->secretKey,
             'algorithm' => ['HS256'],
             'attribute' => 'jwt',
-            "error" => function ($response) {
+            "relaxed" => ["localhost", "api.local"],
+            "error" => function ($response, $arguments) {
                 return $response
                     ->withHeader("Content-Type", "application/json")
-                    ->withStatusCode(403)
+                    ->withStatus(403)
                     ->withJson(json_encode([
-                        'error' => "Invalid access token"
+                        'error' => "Invalid access token",
+                        'message' => $arguments['message']
                     ]));
             }
         ]);

@@ -6,3 +6,7 @@ app/build
 
 api/container.env.php
 api/vendor
+
+deploy/terraform/.terraform
+deploy/terraform/*.tfvars
+deploy/terraform/*tfstate*

@@ -25,6 +25,7 @@ class ShopAuthorizationMiddleware
         $shop = $this->shopRepository->findOneBy([
             'id' => $jwt->id
         ]);
+
         if (is_null($shop)) {
             throw new \Exception("Invalid authorization");
         }

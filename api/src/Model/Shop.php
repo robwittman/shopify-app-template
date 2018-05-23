@@ -269,6 +269,16 @@ class Shop extends Model
     protected $database_port;
 
     /**
+     * @Column(type="string", length=145, nullable=true)
+     */
+    protected $access_token;
+
+    /**
+     * @Column(type="simple_array", nullable=true)
+     */
+    protected $scopes;
+
+    /**
      * @return mixed
      */
     public function getId()
@@ -1140,5 +1150,41 @@ class Shop extends Model
     {
         $this->database_port = $database_port;
         return $this;
+    }
+
+    /**
+     * @param $access_token
+     * @return $this
+     */
+    public function setAccessToken($access_token)
+    {
+        $this->access_token = $access_token;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAccessToken()
+    {
+        return $this->access_token;
+    }
+
+    /**
+     * @param $scopes
+     * @return $this
+     */
+    public function setScopes($scopes)
+    {
+        $this->scopes = $scopes;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getScopes()
+    {
+        return $this->scopes;
     }
 }

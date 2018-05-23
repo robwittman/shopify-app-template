@@ -58,13 +58,13 @@ services:
     stdin_open: true
     tty: true
     env_file: config/env/api.env
-  slanger:
-    build:
-      context: .
-      dockerfile: dockerfiles/Slanger.Dockerfile
-    ports:
-      - 4567:4567
-      - 8080:8080
-    links:
-      - cache:redis
-    env_file: config/env/slanger.env
+#  slanger:
+#    build:
+#      context: .
+#      dockerfile: dockerfiles/Slanger.Dockerfile
+#    ports:
+#      - 4567:4567
+#      - 8080:8080
+#    links:
+#      - cache:redis
+#    env_file: config/env/slanger.env
